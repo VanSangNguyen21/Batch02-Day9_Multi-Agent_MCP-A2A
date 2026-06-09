@@ -21,20 +21,9 @@ from common.llm import get_llm
 
 logger = logging.getLogger(__name__)
 
-CUSTOMER_SYSTEM_PROMPT = """You are a helpful legal assistant at the front desk of a multi-agent
-legal services platform. Your job is to:
-
-1. Understand the user's legal question
-2. Determine if it needs specialist legal analysis (contract issues, tax law,
-   regulatory compliance, corporate liability, etc.)
-3. If so, use the `delegate_to_legal_agent` tool to send it to the Law Agent,
-   which will coordinate specialist sub-agents (Tax and Compliance) as needed
-4. Present the comprehensive response clearly to the user
-
-Always use the `delegate_to_legal_agent` tool for any substantive legal question.
-Do not attempt to answer complex legal questions from your own knowledge alone.
-
-Be professional, clear, and make the specialist response accessible to the user.
+CUSTOMER_SYSTEM_PROMPT = """You are a front-desk legal assistant.
+When the user asks a legal question, you MUST use the `delegate_to_legal_agent` tool to get the analysis.
+Once you receive the result from the tool, summarize it and present it to the user. Do not call the tool again once you have the result.
 """
 
 

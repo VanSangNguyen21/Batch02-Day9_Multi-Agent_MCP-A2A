@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A2A Legal Multi-Agent System Demo</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #161f33;
+            --bg-tertiary: #1f2d4a;
+            --accent-blue: #00d2ff;
+            --accent-purple: #9d4edd;
+            --accent-green: #38b000;
+            --accent-orange: #f77f00;
+            --text-primary: #f8f9fa;
+            --text-secondary: #a0aec0;
+            --glow-color: rgba(0, 210, 255, 0.4);
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            color: var(--accent-blue);
+            text-shadow: 0 0 15px var(--glow-color);
+            -webkit-text-fill-color: initial;
+        }
+
+        .badge {
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--accent-blue);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Controls Panel */
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            height: fit-content;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .panel-title i {
+            color: var(--accent-blue);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: var(--text-primary);
+            text-align: left;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            font-family: inherit;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .preset-btn:hover {
+            background: rgba(0, 210, 255, 0.05);
+            border-color: rgba(0, 210, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .preset-btn.active {
+            background: rgba(0, 210, 255, 0.08);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+        }
+
+        .preset-btn i {
+            font-size: 18px;
+            color: var(--accent-blue);
+        }
+
+        .input-textarea {
+            width: 100%;
+            height: 120px;
+            background: var(--bg-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 15px;
+            resize: none;
+            transition: border-color var(--transition-speed);
+        }
+
+        .input-textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .btn-run {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: var(--text-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(0, 210, 255, 0.2);
+        }
+
+        .btn-run:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 210, 255, 0.35);
+        }
+
+        .btn-run:active {
+            transform: translateY(1px);
+        }
+
+        /* Visualization Panel */
+        .viz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .graph-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        /* Live Topology Graph */
+        .topology {
+            position: relative;
+            height: 380px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            background: radial-gradient(circle, var(--bg-tertiary) 0%, var(--bg-secondary) 80%);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            overflow: hidden;
+        }
+
+        .agent-node {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: var(--bg-tertiary);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .agent-node i {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            transition: color 0.4s;
+        }
+
+        .agent-node span {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        /* Specific node locations */
+        .node-registry {
+            top: 25px;
+        }
+        .node-customer {
+            bottom: 25px;
+        }
+        .node-law {
+            top: 175px;
+            width: 100px;
+            height: 100px;
+        }
+        .node-tax {
+            top: 75px;
+            right: 80px;
+        }
+        .node-compliance {
+            top: 175px;
+            right: 50px;
+        }
+        .node-privacy {
+            top: 275px;
+            right: 80px;
+        }
+
+        /* Active node states */
+        .agent-node.active-registry {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 25px rgba(247, 127, 0, 0.5);
+            background: rgba(247, 127, 0, 0.15);
+        }
+        .agent-node.active-registry i, .agent-node.active-registry span {
+            color: var(--accent-orange);
+        }
+
+        .agent-node.active-customer {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.5);
+            background: rgba(0, 210, 255, 0.15);
+        }
+        .agent-node.active-customer i, .agent-node.active-customer span {
+            color: var(--accent-blue);
+        }
+
+        .agent-node.active-law {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 25px rgba(157, 78, 221, 0.5);
+            background: rgba(157, 78, 221, 0.15);
+        }
+        .agent-node.active-law i, .agent-node.active-law span {
+            color: var(--accent-purple);
+        }
+
+        .agent-node.active-tax {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 25px rgba(56, 176, 0, 0.5);
+            background: rgba(56, 176, 0, 0.15);
+        }
+        .agent-node.active-tax i, .agent-node.active-tax span {
+            color: var(--accent-green);
+        }
+
+        .agent-node.active-compliance {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.5);
+            background: rgba(0, 210, 255, 0.15);
+        }
+        .agent-node.active-compliance i, .agent-node.active-compliance span {
+            color: var(--accent-blue);
+        }
+
+        .agent-node.active-privacy {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 25px rgba(157, 78, 221, 0.5);
+            background: rgba(157, 78, 221, 0.15);
+        }
+        .agent-node.active-privacy i, .agent-node.active-privacy span {
+            color: var(--accent-purple);
+        }
+
+        /* SVG Connections */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 2;
+            fill: none;
+            transition: stroke 0.4s;
+        }
+
+        .connection-line.active {
+            stroke: var(--accent-blue);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.5));
+            stroke-dasharray: 8;
+            animation: dash 1s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -16;
+            }
+        }
+
+        /* Logger terminal */
+        .terminal {
+            background: #070913;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 13px;
+            height: 220px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 10px;
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: slideIn 0.3s forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-timestamp {
+            color: #4a5568;
+            flex-shrink: 0;
+        }
+
+        .log-tag {
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .tag-registry { color: var(--accent-orange); }
+        .tag-customer { color: var(--accent-blue); }
+        .tag-law { color: var(--accent-purple); }
+        .tag-tax { color: var(--accent-green); }
+        .tag-compliance { color: var(--accent-blue); }
+        .tag-privacy { color: var(--accent-purple); }
+
+        .log-text {
+            color: var(--text-primary);
+        }
+
+        /* Result Panel */
+        .result-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+
+        .result-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-title i {
+            color: var(--accent-green);
+        }
+
+        .result-content {
+            background: var(--bg-primary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fa-solid fa-network-wired"></i>
+                <span>A2A MULTI-AGENT SYSTEM</span>
+            </div>
+            <div class="badge">
+                <i class="fa-solid fa-server"></i> Stage 5: Distributed Agents
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Left: Controls -->
+            <div class="panel">
+                <h3 class="panel-title">
+                    <i class="fa-solid fa-sliders"></i>
+                    Bản Điều Khiển
+                </h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Chọn Câu Hỏi Pháp Lý Mẫu</label>
+                    <div class="preset-buttons">
+                        <button class="preset-btn active" onclick="selectPreset(0, this)">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <div>
+                                <strong>Hợp đồng & Thuế</strong>
+                                <div style="font-size: 12px; color: var(--text-secondary)">Breach of contract + tax evasion</div>
+                            </div>
+                        </button>
+                        <button class="preset-btn" onclick="selectPreset(1, this)">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <div>
+                                <strong>Bảo mật & GDPR</strong>
+                                <div style="font-size: 12px; color: var(--text-secondary)">Data breach + privacy regulations</div>
+                            </div>
+                        </button>
+                        <button class="preset-btn" onclick="selectPreset(2, this)">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                            <div>
+                                <strong>Tất cả khía cạnh</strong>
+                                <div style="font-size: 12px; color: var(--text-secondary)">Contract, Tax, Compliance, Privacy</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nội dung câu hỏi</label>
+                    <textarea class="input-textarea" id="questionText">If a company breaks a contract and avoids taxes, what are the legal and regulatory consequences?</textarea>
+                </div>
+
+                <button class="btn-run" id="btnRun" onclick="startSimulation()">
+                    <i class="fa-solid fa-play"></i>
+                    Chạy Giả Lập Tương Tác
+                </button>
+            </div>
+
+            <!-- Right: Visualization & Output -->
+            <div class="viz-container">
+                <!-- Topology Graph -->
+                <div class="graph-card">
+                    <h3 class="panel-title">
+                        <i class="fa-solid fa-diagram-project"></i>
+                        Luồng Giao Tiếp Agent-to-Agent (A2A)
+                    </h3>
+                    
+                    <div class="topology">
+                        <!-- SVG for connection paths -->
+                        <svg class="connections-svg">
+                            <!-- Registry connections -->
+                            <path id="line-registry-customer" class="connection-line" d="M 330 70 L 330 310" />
+                            <path id="line-registry-law" class="connection-line" d="M 330 70 Q 280 120 280 180" />
+                            
+                            <!-- Main flow -->
+                            <path id="line-customer-law" class="connection-line" d="M 330 310 L 280 220" />
+                            <path id="line-law-tax" class="connection-line" d="M 280 220 L 530 120" />
+                            <path id="line-law-compliance" class="connection-line" d="M 280 220 L 560 220" />
+                            <path id="line-law-privacy" class="connection-line" d="M 280 220 L 530 320" />
+                            
+                            <!-- Return flow (using same paths but highlighting reverse) -->
+                        </svg>
+
+                        <!-- Agent Nodes -->
+                        <div id="node-registry" class="agent-node node-registry" style="left: 285px;">
+                            <i class="fa-solid fa-address-book"></i>
+                            <span>Registry</span>
+                            <div style="font-size: 9px; color: var(--text-secondary)">Port 10000</div>
+                        </div>
+
+                        <div id="node-customer" class="agent-node node-customer" style="left: 285px;">
+                            <i class="fa-solid fa-headset"></i>
+                            <span>Customer</span>
+                            <div style="font-size: 9px; color: var(--text-secondary)">Port 10100</div>
+                        </div>
+
+                        <div id="node-law" class="agent-node node-law" style="left: 230px;">
+                            <i class="fa-solid fa-gavel"></i>
+                            <span>Law Agent</span>
+                            <div style="font-size: 9px; color: var(--text-secondary)">Port 10101</div>
+                        </div>
+
+                        <div id="node-tax" class="agent-node node-tax">
+                            <i class="fa-solid fa-coins"></i>
+                            <span>Tax Agent</span>
+                            <div style="font-size: 9px; color: var(--text-secondary)">Port 10102</div>
+                        </div>
+
+                        <div id="node-compliance" class="agent-node node-compliance">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                            <span>Compliance</span>
+                            <div style="font-size: 9px; color: var(--text-secondary)">Port 10103</div>
+                        </div>
+
+                        <div id="node-privacy" class="agent-node node-privacy">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span>Privacy Agent</span>
+                            <div style="font-size: 9px; color: var(--text-secondary)">Port 10104</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logger Terminal -->
+                <div class="graph-card">
+                    <h3 class="panel-title">
+                        <i class="fa-solid fa-terminal"></i>
+                        A2A Telemetry & Logs Trace
+                    </h3>
+                    <div class="terminal" id="terminal">
+                        <div class="log-entry" style="animation: none; opacity: 0.5;">
+                            <span class="log-timestamp">00:00:00</span>
+                            <span class="log-text">Sẵn sàng chạy giả lập...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Output -->
+                <div class="result-card" id="resultCard">
+                    <h3 class="result-title">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Báo Cáo Pháp Lý Hoàn Chỉnh (Synthesis)
+                    </h3>
+                    <div class="result-content" id="resultContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const presets = [
+            "If a company breaks a contract and avoids taxes, what are the legal and regulatory consequences?",
+            "If our customer database was leaked online exposing personal emails and we avoided reporting it to save tax costs, what GDPR and regulatory penalties do we face?",
+            "Analyze the corporate liabilities, tax penalties, SEC compliance violations, and GDPR data protection risks if a tech startup breaches their NDA and fails to protect client data."
+        ];
+
+        function selectPreset(index, element) {
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('questionText').value = presets[index];
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal').innerHTML = '';
+        }
+
+        function appendLog(timestamp, tag, text, tagClass = '') {
+            const term = document.getElementById('terminal');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-tag tag-${tagClass}">${tag}:</span>
+                <span class="log-text">${text}</span>
+            `;
+            term.appendChild(entry);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        function updateSvgLines() {
+            // Recalculate line offsets dynamically based on element positions if necessary
+            // In this fixed layout, standard paths are pre-coded but we can set up live animations
+        }
+
+        function activateNode(nodeId, className) {
+            document.querySelectorAll('.agent-node').forEach(node => {
+                node.className = node.className.replace(/active-\w+/g, '');
+            });
+            if(nodeId) {
+                document.getElementById(nodeId).classList.add(className);
+            }
+        }
+
+        function activateLine(lineId, active) {
+            if(lineId) {
+                const line = document.getElementById(lineId);
+                if(active) line.classList.add('active');
+                else line.classList.remove('active');
+            }
+        }
+
+        function deactivateAllLines() {
+            document.querySelectorAll('.connection-line').forEach(line => line.classList.remove('active'));
+        }
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function startSimulation() {
+            const btn = document.getElementById('btnRun');
+            const qText = document.getElementById('questionText').value;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang chạy giả lập...';
+            
+            document.getElementById('resultCard').style.display = 'none';
+            clearTerminal();
+            deactivateAllLines();
+            
+            const traceId = 'tr-' + Math.random().toString(36).substr(2, 9);
+            const contextId = 'ctx-' + Math.random().toString(36).substr(2, 9);
+            
+            let time = new Date().toLocaleTimeString();
+            appendLog(time, 'SYSTEM', `Bắt đầu request. Question: "${qText.substring(0, 45)}..."`, 'registry');
+            appendLog(time, 'SYSTEM', `Trace ID: ${traceId} | Context ID: ${contextId}`, 'registry');
+            await sleep(1000);
+
+            // Step 1: Registry lookup from Customer Agent
+            time = new Date().toLocaleTimeString();
+            activateNode('node-customer', 'active-customer');
+            appendLog(time, 'CUSTOMER', 'Khởi tạo request. Nhận câu hỏi từ User.', 'customer');
+            await sleep(1200);
+            
+            time = new Date().toLocaleTimeString();
+            activateNode('node-registry', 'active-registry');
+            activateLine('line-registry-customer', true);
+            appendLog(time, 'REGISTRY', 'Customer Agent gửi yêu cầu discover("legal_question").', 'registry');
+            await sleep(1500);
+            
+            time = new Date().toLocaleTimeString();
+            activateNode('node-customer', 'active-customer');
+            activateLine('line-registry-customer', false);
+            appendLog(time, 'CUSTOMER', 'Registry trả về endpoint của Law Agent (http://localhost:10101).', 'customer');
+            await sleep(1200);
+
+            // Step 2: Customer delegates to Law Agent
+            time = new Date().toLocaleTimeString();
+            activateNode('node-law', 'active-law');
+            activateLine('line-customer-law', true);
+            appendLog(time, 'CUSTOMER', 'Delegating sang Law Agent qua giao thức A2A (depth=1).', 'customer');
+            await sleep(1500);
+
+            time = new Date().toLocaleTimeString();
+            deactivateAllLines();
+            appendLog(time, 'LAW AGENT', 'Law Agent bắt đầu chạy analyze_law...', 'law');
+            await sleep(2000);
+            appendLog(time, 'LAW AGENT', 'Analyze_law hoàn thành. Bắt đầu check_routing...', 'law');
+            await sleep(1500);
+
+            // Determine routing targets based on question keywords
+            const needsTax = qText.toLowerCase().includes('tax') || qText.toLowerCase().includes('thuế');
+            const needsCompliance = qText.toLowerCase().includes('compliance') || qText.toLowerCase().includes('sec') || qText.toLowerCase().includes('regulation') || qText.toLowerCase().includes('tuân thủ');
+            const needsPrivacy = qText.toLowerCase().includes('privacy') || qText.toLowerCase().includes('gdpr') || qText.toLowerCase().includes('data') || qText.toLowerCase().includes('dữ liệu') || qText.toLowerCase().includes('leak');
+
+            appendLog(time, 'LAW AGENT', `Routing decision: Tax=${needsTax}, Compliance=${needsCompliance}, Privacy=${needsPrivacy}`, 'law');
+            await sleep(1500);
+
+            // Step 3: Discover & call specialists in parallel
+            const activeParallelLines = [];
+            const activeParallelNodes = [];
+            
+            if(needsTax) {
+                appendLog(time, 'LAW AGENT', 'Registry: discover("tax_question")', 'law');
+                activeParallelLines.push('line-law-tax');
+                activeParallelNodes.push({id: 'node-tax', class: 'active-tax', name: 'TAX AGENT', tagClass: 'tax', desc: 'Tax Agent đang phân tích các khía cạnh trốn thuế/IRS...'});
+            }
+            if(needsCompliance) {
+                appendLog(time, 'LAW AGENT', 'Registry: discover("compliance_question")', 'law');
+                activeParallelLines.push('line-law-compliance');
+                activeParallelNodes.push({id: 'node-compliance', class: 'active-compliance', name: 'COMPLIANCE', tagClass: 'compliance', desc: 'Compliance Agent đang phân tích sai phạm SEC/regulation...'});
+            }
+            if(needsPrivacy) {
+                appendLog(time, 'LAW AGENT', 'Registry: discover("privacy_question")', 'law');
+                activeParallelLines.push('line-law-privacy');
+                activeParallelNodes.push({id: 'node-privacy', class: 'active-privacy', name: 'PRIVACY AGENT', tagClass: 'privacy', desc: 'Privacy Agent đang phân tích vi phạm GDPR và rò rỉ dữ liệu...'});
+            }
+
+            await sleep(1000);
+            
+            // Activate connections in parallel
+            time = new Date().toLocaleTimeString();
+            activeParallelLines.forEach(line => activateLine(line, true));
+            activeParallelNodes.forEach(node => {
+                document.getElementById(node.id).classList.add(node.class);
+                appendLog(time, node.name, node.desc, node.tagClass);
+            });
+            
+            await sleep(3500); // Simulate parallel LLM execution time
+
+            time = new Date().toLocaleTimeString();
+            activeParallelNodes.forEach(node => {
+                appendLog(time, node.name, 'Hoàn thành phân tích chuyên môn. Trả kết quả về Law Agent.', node.tagClass);
+            });
+            await sleep(1500);
+
+            // Return to Law Agent for aggregation
+            deactivateAllLines();
+            activateNode('node-law', 'active-law');
+            appendLog(time, 'LAW AGENT', 'Nhận kết quả từ các chuyên gia. Bắt đầu tổng hợp (aggregate)...', 'law');
+            await sleep(2500);
+
+            // Return to Customer
+            time = new Date().toLocaleTimeString();
+            activateNode('node-customer', 'active-customer');
+            activateLine('line-customer-law', true);
+            appendLog(time, 'LAW AGENT', 'Gửi báo cáo tổng hợp về cho Customer Agent.', 'law');
+            await sleep(1500);
+
+            time = new Date().toLocaleTimeString();
+            deactivateAllLines();
+            appendLog(time, 'CUSTOMER', 'Nhận báo cáo. Trả kết quả cuối cùng cho User.', 'customer');
+            appendLog(time, 'SYSTEM', 'Hoàn thành request thành công!', 'registry');
+
+            // Render final report
+            let reportHtml = `**BÁO CÁO PHÁP LÝ TỔNG HỢP (A2A CORE SYNTHESIS)**\n\n`;
+            reportHtml += `📋 **PHÂN TÍCH PHÁP LÝ CHUNG (Law Agent):**\n`;
+            reportHtml += `Việc vi phạm điều khoản hợp đồng sẽ dẫn đến trách nhiệm dân sự về bồi thường thiệt hại theo nguyên tắc Hadley v. Baxendale. Công ty có nghĩa vụ bồi thường các thiệt hại trực tiếp và gián tiếp có thể lường trước được.\n\n`;
+            
+            if(needsTax) {
+                reportHtml += `💰 **PHÂN TÍCH THUẾ (Tax Agent):**\n`;
+                reportHtml += `Việc trốn thuế (Tax Evasion) vi phạm điều khoản 26 U.S.C. § 7201. Công ty và các cá nhân chỉ đạo có thể đối mặt với mức phạt dân sự lên tới 75% số tiền thuế nộp thiếu và hình phạt hình sự lên tới 5 năm tù. Thời hiệu truy cứu là 6 năm đối với các lỗi nghiêm trọng, và vô thời hạn đối với hồ sơ khai gian lận.\n\n`;
+            }
+            if(needsCompliance) {
+                reportHtml += `✅ **PHÂN TÍCH TUÂN THỦ (Compliance Agent):**\n`;
+                reportHtml += `Việc không công bố thông tin trung thực vi phạm các tiêu chuẩn công bố thông tin của Ủy ban Chứng khoán Mỹ (SEC). Vi phạm đạo luật Sarbanes-Oxley (SOX § 906) có thể dẫn đến hình phạt lên tới 5 triệu USD và 20 năm tù đối với các giám đốc điều hành ký xác nhận báo cáo sai lệch.\n\n`;
+            }
+            if(needsPrivacy) {
+                reportHtml += `🔒 **PHÂN TÍCH BẢO MẬT/GDPR (Privacy Agent):**\n`;
+                reportHtml += `Việc rò rỉ dữ liệu cá nhân của khách hàng vi phạm nghiêm trọng quy chế GDPR. Công ty có thể đối mặt với mức phạt tối đa lên tới 4% doanh thu toàn cầu năm trước hoặc 20 triệu EUR. Ngoài ra còn phải đối mặt với các vụ kiện tập thể dân sự từ người tiêu dùng.\n\n`;
+            }
+
+            reportHtml += `*Khuyến cáo: Báo cáo này mang tính chất giáo dục và tham khảo học thuật. Doanh nghiệp cần tham vấn ý kiến pháp lý chính thức từ các luật sư có chứng chỉ hành nghề trước khi ra quyết định.*`;
+
+            document.getElementById('resultContent').innerText = reportHtml;
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Chạy Giả Lập Tương Tác';
+        }
+
+        // Initialize SVG lines
+        window.addEventListener('resize', updateSvgLines);
+        updateSvgLines();
+    </script>
+</body>
+</html>

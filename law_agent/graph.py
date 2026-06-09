@@ -79,6 +79,15 @@ async def check_routing(state: LawState) -> dict:
         logger.info("Max delegation depth reached (%d); skipping sub-agents", depth)
         return {"needs_tax": False, "needs_compliance": False}
 
+    import os
+    if os.getenv("OPTIMIZE_ROUTING", "false").lower() == "true":
+        logger.info("Optimized Routing: Using keyword-based heuristic instead of LLM call")
+        q = state["question"].lower()
+        needs_tax = any(kw in q for kw in ["tax", "irs", "evasion", "fbar", "fatca", "thuế", "trốn thuế"])
+        needs_compliance = any(kw in q for kw in ["compliance", "sec", "sox", "fcpa", "aml", "regulation", "tuân thủ"])
+        logger.info("Routing decision (Heuristic): needs_tax=%s needs_compliance=%s", needs_tax, needs_compliance)
+        return {"needs_tax": needs_tax, "needs_compliance": needs_compliance}
+
     llm = get_llm()
     messages = [
         SystemMessage(
